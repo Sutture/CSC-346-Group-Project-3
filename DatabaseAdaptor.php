@@ -18,20 +18,98 @@ class DatabaseAdaptor {
     }
     
     public function checkForUsername($username){
-        $stmt = $this->DB->prepare( "SELECT username FROM userdata where username = '" . $username . "'");
+        $stmt = $this->DB->prepare( "SELECT username FROM userData where username = '" . $username . "'");
         $stmt->execute ();
         return $stmt->fetchAll( PDO::FETCH_ASSOC );
     }
     public function insertNewUser($username , $password){
-        $stmt = $this->DB->prepare("insert into userdata (username, password) values ('" . $username . "' , '" . $password . "')");
+        $stmt = $this->DB->prepare("insert into userData (username, password) values ('" . $username . "' , '" . $password . "')");
         $stmt->execute();
     }
     
     public function checkUserCredentials($username, $password){
-        $stmt = $this->DB->prepare("select password from userdata where username = ('" . $username ."')");
+        $stmt = $this->DB->prepare("select password from userData where username = ('" . $username ."')");
         $stmt->execute();
         $arr = $stmt->fetchAll( PDO::FETCH_ASSOC );
         return $arr[0]["password"] == $password;
+    }
+    
+    public function searchGames($username){
+        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null");
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if(count($arr) > 0){
+            $stmt = $this->DB->prepare("update Games set PlayerBlack = '" . $username . "' where GameID = '" . $arr[0] . "'");
+            $stmt->execute();
+        } else {
+            $board = encode_json(newGameBoard());
+            $stmt = $this->DB->prepare("insert into Games (PlayerRed, board) values ('" . $username . "' , '" . $board . "')");
+            $stmt->execute();
+            
+        }
+    }
+    
+    public function newGameBoard() {
+        $game = array(
+            array(0, 1, 0, 1, 0, 1, 0, 1),
+            array(1, 0, 1, 0, 1, 0, 1, 0),
+            array(0, 1, 0, 1, 0, 1, 0, 1),
+            array(0, 0, 0, 0, 0, 0, 0, 0),
+            array(0, 0, 0, 0, 0, 0, 0, 0),
+            array(2, 0, 2, 0, 2, 0, 2, 0),
+            array(0, 2, 0, 2, 0, 2, 0, 2),
+            array(2, 0, 2, 0, 2, 0, 2, 0));
+        return $game;
+    }
+    
+    public function displayBoard($username) {
+        $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "'");
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (count(arr) == 0) {
+            $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "'");
+            $check2->execute();
+            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+        }
+        return end($arr);
+    }
+    
+    public function move($oX, $oY, $mX, $mY, $username) {
+        $pull = decode_json(displayBoard($username));
+        
+        //simple move
+        if (( $oX - $mX == 1 || $oX - $mX == -1) && ($oY - $mY == 1 || $oY - $mY == -1)) {
+            $pull[$mX][$mY] = $pull[$oX][$oY];
+            $pull[$oX][$oY] = 0;
+        }
+        
+        //jump move
+        else {
+            $pull[$mX][$mY] = $pull[$oX][$oY];
+            $pull[($oX-$mX)/2][($oY-$mY)/2] = $pull[$oX][$oY];
+            $pull[$oX][$oY] = 0;
+        }
+        
+        $push = encode_json($pull);
+        
+        updateBoard($username, $push);
+        
+        return displayBoard($username);
+    }
+    
+    public function updateBoard($username, $push) {
+        
+        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "'");
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (count(arr) == 0) {
+            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "'");
+            $check2->execute();
+            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+        }
+        
+        $update = $this->DB->prepare("update Games set Board = '" . $push . "' where GameID = '" . end($arr) . "'");
+        $update->execute();
     }
 }
 
