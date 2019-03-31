@@ -1,0 +1,34 @@
+TODO: 
+
+Breyden:
+
+
+	Figure out how we hook up the amazon aws mysql.  We need it running, and i need to know how i attach our web project to it.    
+
+
+	databaseAdaptor php class functions needed:
+		-searchGames(): looks through all games, tries to find a game that has only one player.  
+					if this exists, returns the game ID, 
+					if this doesnt exist (all games are full), it creates a new game in the database, and assigns the player to it
+	
+		-displayBoard(): return a 2d integer array containing the board state (0s are empty, 1s are red pieces, 2s are black pieces)
+		
+		-move(currentX, currentY, targetX, targetY): given two sets of coordinates, move the piece from the first to the second.  if an opponents piece was in between the locations, remove it.  then, call displayBoard()
+
+
+Ben: 
+	
+	-HTML for home, searchGames, and Game pages (partial complete)
+	
+	-CSS styling for home, searchGames, and Game Pages (0% complete)
+
+	-javascript event handlers:
+		-Home:
+			-login
+			-register
+		-searchGames:
+			-search for a game
+		-Game:
+			-move
+			-display
+			-move legality algorithm	
