@@ -36,7 +36,7 @@
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
                 alert(ajax.responseText);
-                if (ajax.responseText != null){
+                if (JSON.parse(ajax.responseText) != null){
                     document.getElementById('board').innerHTML = getBoard();
                 }
 
