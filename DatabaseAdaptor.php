@@ -138,7 +138,7 @@ class DatabaseAdaptor {
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
         
-        
+        return end($arr);
         
         
     }
