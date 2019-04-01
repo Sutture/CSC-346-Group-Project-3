@@ -31,7 +31,7 @@
         var ajax = new XMLHttpRequest();
 	    ajax.open("POST", "controller.php", true);
 	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	    ajax.send("method=getOtherPlayer");
+	    ajax.send("method=searchGames");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
                 alert(ajax.responseText);
