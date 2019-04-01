@@ -12,6 +12,6 @@ create table Games(
 	GameID int(11) NOT NULL AUTO_INCREMENT,
 	PlayerRed int(11),
 	PlayerBlack int(11),
-	Board 
+	Board varchar(900),
 	PRIMARY KEY(GameID)
 );
