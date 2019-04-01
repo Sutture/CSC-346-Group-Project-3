@@ -48,6 +48,12 @@ if ($method == "registration"){
         echo 'Registration succesful';
     }
 }
+//manages game search
+if ($method == "displayBoard"){
+    if (isset($_POST["username"])){
+        echo $databaseAdaptor->displayBoard($_POST["username"]);   
+    }
+}
 
 
 
