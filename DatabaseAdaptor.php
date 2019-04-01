@@ -106,12 +106,52 @@ class DatabaseAdaptor {
     
     //TODO fix
     public function move($oX, $oY, $mX, $mY, $username) {
-        $pull = json_decode(displayBoard($username));
+        
+        $check = $this->DB->prepare('select GameID from Games where PlayerRed is "' . $username . '" and winner is null');
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (count(arr) == 0) {
+            $check2 = $this->DB->prepare('select GameID from Games where PlayerBlack is "' . $username . '" and winner is null');
+            $check2->execute();
+            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+        }
         
         //simple move
         if (( $oX - $mX == 1 || $oX - $mX == -1) && ($oY - $mY == 1 || $oY - $mY == -1)) {
-            $pull[$mX][$mY] = $pull[$oX][$oY];
-            $pull[$oX][$oY] = "0";
+            $firstRow = "Row" + strval($oX);
+            $firstRowCall = $this->DB->prepare('select "' . $firstRow . '" from Games where GameID is "' . end($arr) . '"');
+            $firstRowCall->execute();
+            $rowOne = $firstRowCall->fetchAll( PDO:: FETCH_ASSOC )[0];
+            $secondRow = "Row" + strval($mX);
+            $secondRowCall = $this->DB->prepare('select "' . $secondRow . '" from Games where GameID is "' . end($arr) . '"');
+            $secondRowCall->execute();
+            $rowTwo = $secondRowCall->fetchAll( PDO:: FETCH_ASSOC )[0];
+            $updatedOne = "";
+            $updatedTwo = "";
+            for($i = 0; $i < 8; $i++) {
+                
+                //from row move
+                if ($i == $oY) {
+                    $updatedOne = $updatedOne + "0";
+                }
+                else {
+                    $updatedOne = $updatedOne + substr($rowOne, $i, 1);
+                }
+                
+                //to row move
+                if ($i == $mY) {
+                    $updatedTwo = $updatedTwo + substr($rowOne, $oY, 1);
+                }
+                else {
+                    $updatedTwo = $updatedTwo + substr($rowTwo, $i, 1);
+                }
+            }
+            
+            //updates rows in db
+            $uOne = $this->DB->prepare('update Games set "' . $firstRow . '" = "' . $updatedOne . '" where GameID is "' . end($arr) . '"');
+            $uOne->execute();
+            $uTwo = $this->DB->prepare('update Games set "' . $secondRow . '" = "' . $updatedTwo . '" where GameID is "' . end($arr) . '"');
+            $uTwo->execute();
         }
         
         //jump move
@@ -121,14 +161,12 @@ class DatabaseAdaptor {
             $pull[$oX][$oY] = "0";
         }
         
-        $push = json_encode($pull);
         
-        updateBoard($username, $push);
         
-        return displayBoard($username);
+        return $this->displayBoard($username);
     }
     
-    //TODO fix
+    //legacy update, now taken care of in move
     public function updateBoard($username, $push) {
         
         $check = $this->DB->prepare('select GameID from Games where PlayerRed is "' . $username . '" and winner is null');
