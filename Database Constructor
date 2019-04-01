@@ -10,10 +10,10 @@ create table userData(
 
 create table Games(
 	GameID int(11) NOT NULL AUTO_INCREMENT,
-	PlayerRed int(11),
-	PlayerBlack int(11),
+	PlayerRed varchar(255),
+	PlayerBlack varchar(255),
 	Board varchar(256),
-	activePlayer varchar(11),
-	winner varchar(11),
+	activePlayer varchar(255),
+	winner varchar(255),
 	PRIMARY KEY(GameID)
 );

@@ -19,10 +19,10 @@
 <script>
 
     function searchGame(){
+		alert("search for game");
 		//FOR TESTING PURPOSES ONLY
-		window.location = "game.php";
-
-        ajax.open("POST", "controller.php", true);
+		var ajax = new XMLHttpRequest();
+		ajax.open("POST", "controller.php", true);
 	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	    ajax.send("method=searchGames");
 	    ajax.onreadystatechange = function() {

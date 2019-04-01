@@ -24,29 +24,8 @@
 
     displayBoard();
 
+
     function displayBoard(){
-
-        //if game has two player 
-        var gameSetup;
-        var ajax = new XMLHttpRequest();
-	    ajax.open("POST", "controller.php", true);
-	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	    ajax.send("method=searchGames");
-	    ajax.onreadystatechange = function() {
-	        if (ajax.readyState == 4 && ajax.status == 200) {
-                alert(ajax.responseText);
-                if (ajax.responseText.length > 1){
-                    document.getElementById('board').innerHTML = getBoard();
-                }
-
-                else{
-                    document.getElementById('board').innerHTML = document.createElement('p').appendChild(document.createTextNode("Waiting for player 2"));
-                }
-            }
-        }
-    }
-
-    function getBoard(){
         var boardState;
         var ajax = new XMLHttpRequest();
 	    ajax.open("POST", "controller.php", true);
@@ -54,7 +33,8 @@
 	    ajax.send("method=displayBoard");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
-	        	boardState = JSON.parse(ajax.responseText);
+                alert(ajax.responseText);
+	        	boardState = ajax.responseText;
                 //draw board
                 var table = document.createElement('table');
                 for(var y = 0; y < 8; y++){

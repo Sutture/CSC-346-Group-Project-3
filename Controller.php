@@ -50,7 +50,7 @@ if ($method == "registration"){
 }
 if ($method == "displayBoard"){
     if (isset($_SESSION["username"])){
-        echo encode_json($databaseAdaptor->displayBoard($_SESSION["username"]));   
+        echo $databaseAdaptor->displayBoard($_SESSION["username"]);   
     }
 }
 
