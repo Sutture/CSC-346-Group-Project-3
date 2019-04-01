@@ -59,7 +59,7 @@ class DatabaseAdaptor {
         return "[[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[2,0,2,0,2,0,2,0],[0,2,0,2,0,2,0,2], [2,0,2,0,2,0,2,0]]";
     }
     
-    public function phpBoard() {
+    public function phpBoard($GameID) {
         
     }
     
