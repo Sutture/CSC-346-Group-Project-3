@@ -22,8 +22,21 @@
 
 <script>
 
-    displayBoard();
+    insertGame();
 
+    function insertGame(){
+        alert("called");
+    //displayBoard();
+    var ajax = new XMLHttpRequest();
+	    ajax.open("POST", "controller.php", true);
+	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	    ajax.send("method=insertGame");
+	    ajax.onreadystatechange = function() {
+	        if (ajax.readyState == 4 && ajax.status == 200) {
+                alert(ajax.responseText);
+            }
+        }
+    }
 
     function displayBoard(){
         var boardState;

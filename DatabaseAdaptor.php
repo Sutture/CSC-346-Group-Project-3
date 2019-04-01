@@ -38,27 +38,25 @@ class DatabaseAdaptor {
         $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null");
         $check->execute();
         $arr = $check->fetchAll(PDO:: FETCH_ASSOC);
-        if($arr != null){
+        if(count($arr) > 0){
             $stmt = $this->DB->prepare("update Games set PlayerBlack = '" . $username . "' where GameID = '" . end($arr) . "'");
             $stmt->execute();
         } else{
-            $board = json_encode(newGameBoard());
-            $stmt = $this->DB->prepare("insert into Games (PlayerRed, Board) values ('" . $username . "' , '" . $board . "')");
+            $board = json_encode($this->newGameBoard());
+            $stmt = $this->DB->prepare('insert into games (PlayerRed, Board) values ("' . $username . '", "' . $board . '")');
             $stmt->execute();
         }
     }
+
+    public function insertGame($username){
+        $board = json_encode($this->newGameBoard());
+        $stmt = $this->DB->prepare('insert into games (PlayerRed, Board) values ("' . $username . '",' . $board . ')');
+        $stmt->execute();
+        return "inserted new game";
+    }
     
     public function newGameBoard() {
-        $game = array(
-            array(0, 1, 0, 1, 0, 1, 0, 1),
-            array(1, 0, 1, 0, 1, 0, 1, 0),
-            array(0, 1, 0, 1, 0, 1, 0, 1),
-            array(0, 0, 0, 0, 0, 0, 0, 0),
-            array(0, 0, 0, 0, 0, 0, 0, 0),
-            array(2, 0, 2, 0, 2, 0, 2, 0),
-            array(0, 2, 0, 2, 0, 2, 0, 2),
-            array(2, 0, 2, 0, 2, 0, 2, 0));
-        return $game;
+        return "[[0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1], [1,0,1,0,1,0,1,0]]";
     }
     
     public function displayBoard($username) {
@@ -66,7 +64,7 @@ class DatabaseAdaptor {
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if (count($arr) == 0) {
-            $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and winner is null");
+            $check2 = $this->DB->prepare('select Board from Games where PlayerBlack is "' . $username . '" and winner is null');
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }

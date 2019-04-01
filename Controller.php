@@ -49,25 +49,28 @@ if ($method == "registration"){
     }
 }
 if ($method == "displayBoard"){
-    if (isset($_SESSION["username"])){
-        echo $databaseAdaptor->displayBoard($_SESSION["username"]);   
+    if (isset($_SESSION["user"])){
+        echo $databaseAdaptor->displayBoard($_SESSION["user"]);   
     }
 }
 
 if ($method == "getOtherPlayer"){
-    if (isset($_SESSION["username"])){
-        echo $databaseAdaptor->getOtherPlayer($_SESSION["username"]);
+    if (isset($_SESSION["user"])){
+        echo $databaseAdaptor->getOtherPlayer($_SESSION["user"]);
     }
 }
 
 if ($method == "searchGames"){
-    if (isset($_SESSION["username"])){
-        $databaseAdaptor->searchGames($_SESSION["username"]);
+    if (isset($_SESSION["user"])){
+        $databaseAdaptor->searchGames($_SESSION["user"]);
     }
 }
 
-
-
+if ($method == "insertGame"){
+    if (isset($_SESSION["user"])){
+        echo $databaseAdaptor->insertGame($_SESSION["user"]);
+    }
+}
 
 
 
