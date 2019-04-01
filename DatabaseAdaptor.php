@@ -45,7 +45,6 @@ class DatabaseAdaptor {
             $board = encode_json(newGameBoard());
             $stmt = $this->DB->prepare("insert into Games (PlayerRed, board) values ('" . $username . "' , '" . $board . "')");
             $stmt->execute();
-            
         }
     }
     
@@ -66,26 +65,26 @@ class DatabaseAdaptor {
         $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "' and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
-        if (count(arr) == 0) {
+        if (count($arr) == 0) {
             $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and where winner is null");
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
         
-        if (count(arr) == 0) {
+        if (count($arr) == 0) {
             $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "' and where winner is not null");
             $check->execute();
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
             
         }
-        if (count(arr) == 0) {
+        if (count($arr) == 0) {
             $check = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and where winner is not null");
             $check->execute();
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
             
         }
         
-        return end($arr);
+        return encode_json(end($arr));
     }
     
     public function move($oX, $oY, $mX, $mY, $username) {
@@ -137,10 +136,7 @@ class DatabaseAdaptor {
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
-        
         return end($arr);
-        
-        
     }
     
     public function getOtherPlayer($username) {
@@ -152,7 +148,6 @@ class DatabaseAdaptor {
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
-        
         return end($arr);
     }
 }

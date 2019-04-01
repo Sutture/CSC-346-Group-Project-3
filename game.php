@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Game</title>
-<link rel="stylesheet" href="game.css">
 </head>
 
 <?php session_start()?>
@@ -36,7 +35,7 @@
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
                 alert(ajax.responseText);
-                if (JSON.parse(ajax.responseText) != null){
+                if (ajax.responseText.length > 1){
                     document.getElementById('board').innerHTML = getBoard();
                 }
 
@@ -55,8 +54,7 @@
 	    ajax.send("method=displayBoard");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
-	        	boardState = ajax.responseText;
-
+	        	boardState = JSON.parse(ajax.responseText);
                 //draw board
                 var table = document.createElement('table');
                 for(var y = 0; y < 8; y++){

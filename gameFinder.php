@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Game</title>
-<link rel="stylesheet" href="game.css">
 </head>
 
 <?php session_start()?>
@@ -25,18 +24,10 @@
 
         ajax.open("POST", "controller.php", true);
 	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	    ajax.send("username=" + username + "&password=" + password + "&method=searchGame");
+	    ajax.send("method=searchGames");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200){
-	        	if (ajax.responseText == true){
-
-					
-
-					window.location = "game.php";
-	        	}
-	        	else{
-	        		document.getElementById("messages").innerHTML = "Could not find a game";
-	        	}
+				window.location = "game.php";
 	        }
 	    };
     }

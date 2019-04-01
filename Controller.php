@@ -48,16 +48,21 @@ if ($method == "registration"){
         echo 'Registration succesful';
     }
 }
-//manages game search
 if ($method == "displayBoard"){
-    if (isset($_POST["username"])){
-        echo $databaseAdaptor->displayBoard($_POST["username"]);   
+    if (isset($_SESSION["username"])){
+        echo encode_json($databaseAdaptor->displayBoard($_SESSION["username"]));   
     }
 }
 
 if ($method == "getOtherPlayer"){
-    if (isset($_POST["username"])){
+    if (isset($_SESSION["username"])){
         echo $databaseAdaptor->getOtherPlayer($_SESSION["username"]);
+    }
+}
+
+if ($method == "searchGames"){
+    if (isset($_SESSION["username"])){
+        $databaseAdaptor->searchGames($_SESSION["username"]);
     }
 }
 
