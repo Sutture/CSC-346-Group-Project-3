@@ -87,12 +87,6 @@ class DatabaseAdaptor {
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
             
         }
-        if (count($arr) == 0) {
-            $check = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and winner is not null");
-            $check->execute();
-            $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
-            
-        }
         
         $curr = end($arr);
         $return = array();
