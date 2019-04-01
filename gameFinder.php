@@ -19,7 +19,6 @@
 <script>
 
     function searchGame(){
-		alert("search for game");
 		//FOR TESTING PURPOSES ONLY
 		var ajax = new XMLHttpRequest();
 		ajax.open("POST", "controller.php", true);
