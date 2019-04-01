@@ -110,11 +110,11 @@ class DatabaseAdaptor {
     
     public function updateBoard($username, $push) {
         
-        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and winner is null");
+        $check = $this->DB->prepare('select GameID from Games where PlayerRed is "' . $username . '" and winner is null');
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if (count(arr) == 0) {
-            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and winner is null");
+            $check2 = $this->DB->prepare('select GameID from Games where PlayerBlack is "' . $username . '" and winner is null');
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
