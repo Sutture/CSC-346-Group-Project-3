@@ -35,7 +35,7 @@ class DatabaseAdaptor {
     }
     
     public function searchGames($username){
-        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null and where PlayerRed is not '" . $username . "'");
+        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if(count($arr) > 0){
@@ -43,7 +43,7 @@ class DatabaseAdaptor {
             $stmt->execute();
         } else {
             $board = encode_json(newGameBoard());
-            $stmt = $this->DB->prepare("insert into Games (PlayerRed, board) values ('" . $username . "' , '" . $board . "')");
+            $stmt = $this->DB->prepare("insert into Games (PlayerRed, Board) values ('" . $username . "' , '" . $board . "')");
             $stmt->execute();
             
         }
