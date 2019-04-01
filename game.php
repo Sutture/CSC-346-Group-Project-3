@@ -23,7 +23,31 @@
 
 <script>
 
+    displayBoard();
+
     function displayBoard(){
+
+        //if game has two player 
+        var gameSetup;
+        var ajax = new XMLHttpRequest();
+	    ajax.open("POST", "controller.php", true);
+	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	    ajax.send("method=getOtherPlayer");
+	    ajax.onreadystatechange = function() {
+	        if (ajax.readyState == 4 && ajax.status == 200) {
+                alert(ajax.responseText);
+                if (ajax.responseText != null){
+                    document.getElementById('board').innerHTML = getBoard();
+                }
+
+                else{
+                    document.getElementById('board').innerHTML = document.createElement('p').appendChild(document.createTextNode("Waiting for player 2"));
+                }
+            }
+        }
+    }
+
+    function getBoard(){
         var boardState;
         var ajax = new XMLHttpRequest();
 	    ajax.open("POST", "controller.php", true);
@@ -50,9 +74,10 @@
                 }
 
                 //add to DOM
-                document.getElementById('board').innerHTML = table;
+                return table;
 	        }
 	    }; 
+
     }
 
 </script>

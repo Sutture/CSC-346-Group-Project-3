@@ -55,6 +55,12 @@ if ($method == "displayBoard"){
     }
 }
 
+if ($method == "getOtherPlayer"){
+    if (isset($_POST["username"])){
+        echo $databaseAdaptor->getOtherPlayer($_SESSION["username"]);
+    }
+}
+
 
 
 
