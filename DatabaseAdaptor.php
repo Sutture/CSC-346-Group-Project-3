@@ -35,15 +35,15 @@ class DatabaseAdaptor {
     }
     
     public function searchGames($username){
-        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null");
+        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if(count($arr) > 0){
-            $stmt = $this->DB->prepare("update Games set PlayerBlack = '" . $username . "' where GameID = '" . $arr[0] . "'");
+            $stmt = $this->DB->prepare("update Games set PlayerBlack = '" . $username . "' where GameID = '" . end($arr) . "'");
             $stmt->execute();
         } else {
             $board = encode_json(newGameBoard());
-            $stmt = $this->DB->prepare("insert into Games (PlayerRed, board) values ('" . $username . "' , '" . $board . "')");
+            $stmt = $this->DB->prepare("insert into Games (PlayerRed, Board) values ('" . $username . "' , '" . $board . "')");
             $stmt->execute();
         }
     }
@@ -128,13 +128,55 @@ class DatabaseAdaptor {
     //passes username of winner, null if not over
     public function isGameOver($username) {
         
-        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and where winner is null");
+        $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "' and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        $player = 0;
         if (count(arr) == 0) {
-            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and where winner is null");
+            $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and where winner is null");
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+            $player = 2;
+        }
+        else {
+            $player = 1;
+        }
+        
+        $board = decode_json(end($arr));
+        $other = 0;
+        $player = 0;
+        for($row = 0; $row < 8; $row++) {
+            for($col = 0; $col < 8; $col++) {
+                if($board[$row][$col] == $player) {
+                    ++$player;
+                }
+                if($board[$row][$col] != $player && $board[$row][$col] != 0) {
+                    ++$other;
+                }
+            }
+        }
+        $guid;
+        if ($player == 1) {
+            $up = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and where winner is null");
+            $up->execute();
+            $guid = end($up->fetchAll( PDO:: FETCH_ASSOC ));
+            
+        }
+        if ($player == 2) {
+            $up2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and where winner is null");
+            $up2->execute();
+            $guid = end($up2->fetchAll( PDO:: FETCH_ASSOC ));
+        }
+        
+        if ($other != 0 && $player != 0) {
+            return null;
+        }
+        else {
+            if ($other == 0) {
+                $up = $this->DB->prepare("update Games set winner = '" . $username . "' where GameID is '" . $guid . "' and where winner is null");
+                $up->execute();
+                
+            }
         }
         return end($arr);
     }
