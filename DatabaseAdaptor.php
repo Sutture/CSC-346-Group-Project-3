@@ -63,14 +63,28 @@ class DatabaseAdaptor {
     }
     
     public function displayBoard($username) {
-        $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "'");
+        $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "' and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if (count(arr) == 0) {
-            $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "'");
+            $check2 = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and where winner is null");
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
+        
+        if (count(arr) == 0) {
+            $check = $this->DB->prepare("select Board from Games where PlayerRed is '" . $username . "' and where winner is not null");
+            $check->execute();
+            $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+            
+        }
+        if (count(arr) == 0) {
+            $check = $this->DB->prepare("select Board from Games where PlayerBlack is '" . $username . "' and where winner is not null");
+            $check->execute();
+            $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+            
+        }
+        
         return end($arr);
     }
     
@@ -99,17 +113,47 @@ class DatabaseAdaptor {
     
     public function updateBoard($username, $push) {
         
-        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "'");
+        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and where winner is null");
         $check->execute();
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if (count(arr) == 0) {
-            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "'");
+            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and where winner is null");
             $check2->execute();
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
         }
         
         $update = $this->DB->prepare("update Games set Board = '" . $push . "' where GameID = '" . end($arr) . "'");
         $update->execute();
+    }
+    
+    //passes username of winner, null if not over
+    public function isGameOver($username) {
+        
+        $check = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and where winner is null");
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (count(arr) == 0) {
+            $check2 = $this->DB->prepare("select GameID from Games where PlayerBlack is '" . $username . "' and where winner is null");
+            $check2->execute();
+            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+        }
+        
+        
+        
+        
+    }
+    
+    public function getOtherPlayer($username) {
+        $check = $this->DB->prepare("select PlayerBlack from Games where PlayerRed is '" . $username . "' and where winner is null");
+        $check->execute();
+        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (count(arr) == 0) {
+            $check2 = $this->DB->prepare("select PlayerRed from Games where PlayerBlack is '" . $username . "' and where winner is null");
+            $check2->execute();
+            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
+        }
+        
+        return end($arr);
     }
 }
 
