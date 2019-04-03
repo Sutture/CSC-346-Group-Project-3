@@ -77,16 +77,15 @@ class DatabaseAdaptor {
     public function displayBoard($username) {
         //finds gameID for unfinished
         $check = $this->DB->prepare('select GameID from Games 
-                                    where (PlayerRed = ? and winner IS NULL) 
-                                    or (PlayerBlack = ? and winner IS NULL)'
-                                    );
+                                    where (PlayerRed = ? or PlayerBlack = ?) 
+                                    AND winner IS NULL');
         $check->execute(array( $username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         
         //finds last game if no current
         if (count($arr) == 0) {
-            $check = $this->DB->prepare('select GameID from Games
-                                        where PlayerRed = ?
+            $check = $this->DB->prepare('select GameID from Games 
+                                        where PlayerRed = ? 
                                         or PlayerBlack = ?');
             $check->execute(array($username, $username));
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
@@ -298,6 +297,7 @@ class DatabaseAdaptor {
         }
         return end($arr);
     }
+    
     
     
     //sets game winner to other player, returns success string
