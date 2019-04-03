@@ -66,6 +66,11 @@ if ($method == "searchGames"){
     }
 }
 
+if($method == "move"){
+    if (isset($_SESSION["user"])){
+        $databaseAdaptor->move($_POST["oX"],$_POST["oY"],$_POST["nX"],$_POST["nY"],$_SESSION["user"]);
+    }
+}
 
 
 
