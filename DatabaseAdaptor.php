@@ -182,25 +182,6 @@ class DatabaseAdaptor {
     }
     
     
-    
-    //legacy update, now taken care of in move
-    public function updateBoard($username, $push) {
-        
-        $check = $this->DB->prepare('select GameID from Games where PlayerRed is "' . $username . '" and winner is null');
-        $check->execute();
-        $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
-        if (count(arr) == 0) {
-            $check2 = $this->DB->prepare('select GameID from Games where PlayerBlack is "' . $username . '" and winner is null');
-            $check2->execute();
-            $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
-        }
-        
-        $update = $this->DB->prepare("update Games set Board = '" . $push . "' where GameID = '" . end($arr) . "'");
-        $update->execute();
-    }
-    
-    
-    
     //passes username of winner, null if not over
     public function isGameOver($username) {
         
@@ -233,6 +214,10 @@ class DatabaseAdaptor {
         }
         
         //finds current gameID
+
+        //return values:
+            //Playername of winning player
+            //null if game not over
         $guid;
         if ($player == "1") {
             $up = $this->DB->prepare("select GameID from Games where PlayerRed is '" . $username . "' and where winner is null");
@@ -287,5 +272,18 @@ class DatabaseAdaptor {
         return end($arr);
     }
 }
+
+
+
+//resign
+
+
+//isActivePlayer($username): returns true if called by active player, false if called by inactive player
+
+
+//add bindParams to all queries
+
+
+//
 
 ?>
