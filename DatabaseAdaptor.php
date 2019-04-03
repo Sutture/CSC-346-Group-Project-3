@@ -37,7 +37,8 @@ class DatabaseAdaptor {
     
     //
     public function searchGames($username){
-        $check = $this->DB->prepare("select GameID from Games where PlayerBlack is null");
+        $check = $this->DB->prepare("select GameID from Games 
+                                    where PlayerBlack is null");
         $check->execute();
         $arr = $check->fetchAll(PDO:: FETCH_ASSOC);
         if(count($arr) > 0){
@@ -60,7 +61,8 @@ class DatabaseAdaptor {
         
         $stmt = $this->DB->prepare('insert into games (PlayerRed, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
             values (?,?,?,?,?,?,?,?)');
-        $stmt->execute(array($PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft));
+        $stmt->bindParam("ssssssss", $PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft);
+        $stmt->execute();
         
     }
     
