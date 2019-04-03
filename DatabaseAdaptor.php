@@ -310,9 +310,23 @@ class DatabaseAdaptor {
         $check->execute(array($winner, $username, $username));
         return "resigned successfully";
     }
+    
+    
+    
+    //finds current player
+    public function isActivePlayer($username) {
+        $check = $this->DB->prepare("SELECT activePlayer from Games 
+                                    where (PlayerRed = ? OR PlayerBlack = ?)
+                                    AND winner IS NULL");
+        $check->execute(array($username, $username));
+        $game = $check->fetchAll( PDO:: FETCH_ASSOC );
+        if (end($game) == $username) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
-
-
-//isActivePlayer($username): returns true if called by active player, false if called by inactive player
 
 ?>
