@@ -66,12 +66,6 @@ if ($method == "searchGames"){
     }
 }
 
-if ($method == "insertGame"){
-    if (isset($_SESSION["user"])){
-        echo $databaseAdaptor->insertGame($_SESSION["user"]);
-    }
-}
-
 
 
 

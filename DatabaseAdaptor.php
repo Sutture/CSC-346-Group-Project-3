@@ -59,8 +59,8 @@ class DatabaseAdaptor {
         $blackRight = "02020202";
         
         $stmt = $this->DB->prepare('insert into games (PlayerRed, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
-            values (' . $PlayerRed . ',' . $redRight .  ',' . $redLeft . ',' . $redRight .  ',' . $mid . ',' . $mid . ',' . $blackLeft . ',' . $blackRight . ',' . $blackLeft . ')');
-        $stmt->execute();
+            values (?,?,?,?,?,?,?,?)');
+        $stmt->execute($PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft);
         
     }
     
@@ -70,14 +70,17 @@ class DatabaseAdaptor {
     public function displayBoard($username) {
         
         //finds gameID for unfinished
-        $check = $this->DB->prepare('select GameID from Games where (PlayerRed is "' . $username . '" and winner is null) or (PlayerBlack is "' . $username . '" and winner is null)');
-        $check->execute();
+        $check = $this->DB->prepare('select GameID from Games 
+                                    where (PlayerRed = ? and winner = ?) 
+                                    or (PlayerBlack = ? and winner = ?)'
+                                    );
+        $check->execute(array( $username, null, $username, null));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         
         //finds last game if no current
         if (count($arr) == 0) {
-            $check = $this->DB->prepare('select GameID from Games where (PlayerRed is "' . $username . '") or (PlayerBlack is "' . $username . '")');
-            $check->execute();
+            $check = $this->DB->prepare('select GameID from Games where PlayerRed is ? or PlayerBlack is ?)');
+            $check->execute(array( $username, $username));
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         }
         
