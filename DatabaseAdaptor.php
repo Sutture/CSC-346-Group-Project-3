@@ -60,7 +60,7 @@ class DatabaseAdaptor {
         
         $stmt = $this->DB->prepare('insert into games (PlayerRed, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
             values (?,?,?,?,?,?,?,?)');
-        $stmt->execute($PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft);
+        $stmt->execute(array($PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft));
         
     }
     
@@ -79,15 +79,17 @@ class DatabaseAdaptor {
         
         //finds last game if no current
         if (count($arr) == 0) {
-            $check = $this->DB->prepare('select GameID from Games where PlayerRed is ? or PlayerBlack is ?)');
-            $check->execute(array( $username, $username));
+            $check = $this->DB->prepare('select GameID from Games
+                                        where PlayerRed is ? 
+                                        or PlayerBlack is ?)');
+            $check->execute(array($username, $username));
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         }
         
         $curr = end($arr);
         $return = array();
-        $check = $this->DB->prepare("select row0, row1, row2, row3, row4, row5, row6, row7 from Games where GameID is '" . $curr . "'");
-        $check->execute();
+        $check = $this->DB->prepare('select row0, row1, row2, row3, row4, row5, row6, row7 from Games where GameID is ?');
+        $check->execute(array($curr));
         $currGame = $check->fetchAll( PDO:: FETCH_ASSOC );
         for($x = 0; $x < 8; $x++) {
             $add = array();
@@ -105,8 +107,10 @@ class DatabaseAdaptor {
     //makes simple move or jump move happen in db, sends new board back when done
     public function move($oX, $oY, $mX, $mY, $username) {
         
-        $check = $this->DB->prepare('select GameID from Games where (PlayerRed is "' . $username . '") or (PlayerBlack is "' . $username . '")');
-        $check->execute();
+        $check = $this->DB->prepare('select GameID from Games 
+                                    where (PlayerRed is ?) 
+                                    or (PlayerBlack is ?)');
+        $check->execute(array($username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         
         //pulls row piece is moving from and to
