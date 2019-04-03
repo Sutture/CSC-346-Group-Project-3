@@ -298,19 +298,21 @@ class DatabaseAdaptor {
         }
         return end($arr);
     }
+    
+    
+    //sets game winner to other player, returns success string
+    public function resign($username) {
+        $winner = $this->getOtherPlayer($username);
+        $check = $this->DB->prepare("update Games 
+                                    SET winner = ? 
+                                    where (PlayerRed = ? OR PlayerBlack = ?) 
+                                    AND winner IS NULL");
+        $check->execute(array($winner, $username, $username));
+        return "resigned successfully";
+    }
 }
 
 
-
-//resign
-
-
 //isActivePlayer($username): returns true if called by active player, false if called by inactive player
-
-
-//add bindParams to all queries
-
-
-//
 
 ?>
