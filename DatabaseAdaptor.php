@@ -81,7 +81,7 @@ class databaseAdaptor {
         $check = $this->DB->prepare('select gameid from Games 
                                     where (playerred = ? or playerblack = ?) 
                                     and winner is NULL');
-        $check->execute(array( $username, $username));
+        $check->execute(array($username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         
         //finds last game if no current
@@ -93,15 +93,14 @@ class databaseAdaptor {
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         }
         
-        $curr = end($arr);
-        $echo = array();
         $check = $this->DB->prepare('select row0, row1, row2, row3, row4, row5, row6, row7 from Games 
                                     where gameid = ?');
-        $check->execute(array($curr));
+        $check->execute(array($arr[0]["gameid"]));
         $currGame = $check->fetchAll( PDO:: FETCH_ASSOC );
         $cols = explode(',','row0,row1,row2,row3,row4,row5,row6,row7');
+        $echo = array();
         for($i = 0; $i < 8;$i++){
-            $echo[$i] = str_split(end($currGame)[$cols[$i]]);
+            $echo[$i] = str_split($currGame[0][$cols[$i]]);
         }
         echo json_encode($echo);
     }
