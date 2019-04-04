@@ -50,7 +50,7 @@ class databaseAdaptor {
             $stmt = $this->DB->prepare('update Games 
                                         set playerblack = ? 
                                         where gameid = ?');
-            $stmt->execute(array($username, end($arr)["gameID"]));
+            $stmt->execute(array($username, $arr[0]["gameid"]));
         } 
         //if no games exist with only one player, make a new game
         else{
@@ -116,10 +116,10 @@ class databaseAdaptor {
         $check->execute(array($username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
 
-        $gameID = $arr[0]['GameID'];
+        $gameID = $arr[0]['gameid'];
 
-        echo "current user: " . $username . "  active player: " . $arr[0]['activePlayer'] . '\n';
-        if($username == $arr[0]['activePlayer']){
+        echo "current user: " . $username . "  active player: " . $arr[0]['activeplayer'] . '\n';
+        if($username == $arr[0]['activeplayer']){
             //break game into 2d array
             $boardState = array();
             for($i = 0; $i < 8;$i++){
@@ -132,14 +132,14 @@ class databaseAdaptor {
             $oldPosition = $boardState[$oY][$oX];
             $newPosition = $boardState[$nY][$nX];
 
-            echo 'From: ('.$oX.','.$oY.')\nTo:('.$nX.','.$nY.')';
+            //echo 'From: ('.$oX.','.$oY.')\nTo:('.$nX.','.$nY.')';
 
             //if there was no piece in the first pos, do nothing
             if ($oldPosition != 0){
                 //if the position to move to is occupied, do nothing
                 if ($newPosition == 0){
                     //logic for red side move
-                    if($username == $arr[0]['PlayerRed']){
+                    if($username == $arr[0]['playerred']){
                         //only 4 possible move locations
                         //up right
                         if($nX == $oX + 1 && $nY == $oY + 1){
@@ -174,7 +174,7 @@ class databaseAdaptor {
                         }
                     }
                     //logic for black side move
-                    else if ($username == $arr[0]["PlayerBlack"]){
+                    else if ($username == $arr[0]["playerblack"]){
                         //down right
                         if($nX == $oX + 1 && $nY == $oY - 1){
                             $boardState[$oY][$oX] = 0;
@@ -224,11 +224,8 @@ class databaseAdaptor {
             }   
             $boardStrings[$y] = $rowString;
         }
-
-        echo json_encode($boardStrings);
-
         $check = $this->DB->prepare('UPDATE Games
-                                    SET activePlayer = ?, 
+                                    SET activeplayer = ?, 
                                     row0 = ?,
                                     row1 = ?, 
                                     row2 = ?, 
@@ -348,11 +345,11 @@ class databaseAdaptor {
                                     where gameid = ?');
         $check->execute(array($gameID));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
-        if($currentPlayer == $arr[0]['PlayerRed']){
-            return $arr[0]['PlayerBlack'];
+        if($currentPlayer == $arr[0]['playerred']){
+            return $arr[0]['playerblack'];
         }
-        else if ($currentPlayer == $arr[0]['PlayerBlack']){
-            return $arr[0]['PlayerRed'];
+        else if ($currentPlayer == $arr[0]['playerblack']){
+            return $arr[0]['playerred'];
         }
         else{
             echo "error line 341";

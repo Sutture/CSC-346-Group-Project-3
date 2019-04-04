@@ -85,7 +85,7 @@
 	    ajax.send("method=displayBoard");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
-                alert(ajax.responseText);
+                //alert(ajax.responseText);
 	        	var boardState = JSON.parse(ajax.responseText);
                 //alternating variable to handle switching background color
                 var board = document.getElementById("board");
@@ -151,7 +151,7 @@
             ajax.send("method=move&oX=" + oX + "&oY=" + oY + "&nX=" + nX + "&nY=" + nY);
             ajax.onreadystatechange = function() {
                 if (ajax.readyState == 4 && ajax.status == 200) {
-                    alert(ajax.repsonseText);
+                    //alert(ajax.repsonseText);
                     displayBoard();
                 }
             }
