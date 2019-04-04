@@ -1,7 +1,7 @@
 <?php
 
 ini_set('display_errors', 1);
-
+require_once('passwords.txt');
 
 class databaseAdaptor {
     private $DB; // The instance variable used in every method
@@ -15,7 +15,6 @@ class databaseAdaptor {
         
         $dsn = "mysql:host={$dbhost};port={$dbport};dbname={$dbname};charset={$charset}";
         $username = 'csc346';
-        $password = 'Borderlands1';
         
         $this->DB = new PDO($dsn, $username, $password);
     }
