@@ -65,9 +65,9 @@ class DatabaseAdaptor {
         $blackLeft = "20202020";
         $blackRight = "02020202";
         
-        $stmt = $this->DB->prepare('insert into games (PlayerRed, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
-                                    values (?,?,?,?,?,?,?,?,?)');
-        $stmt->execute(array($PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft));
+        $stmt = $this->DB->prepare('insert into games (PlayerRed, activePlayer, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
+                                    values (?,?,?,?,?,?,?,?,?,?)');
+        $stmt->execute(array($PlayerRed, $PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft));
         
     }
     
@@ -107,82 +107,131 @@ class DatabaseAdaptor {
     
     
     //makes simple move or jump move happen in db, sends new board back when done
-    public function move($oX, $oY, $mX, $mY, $username) {
-        
-        $check = $this->DB->prepare('select GameID from Games 
-                                    where (PlayerRed = ?) 
-                                    or (PlayerBlack = ?)');
+    public function move($oX, $oY, $nX, $nY, $username) {
+        //get current game
+        $check = $this->DB->prepare('select GameID, activePlayer, row0, row1, row2, row3, row4, row5, row6, row7 from Games 
+                                    where (PlayerRed = ? or PlayerBlack = ?) 
+                                    AND winner IS NULL');
         $check->execute(array($username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
-        
-        //pulls row piece is moving from and to
-        $firstRow = "Row" + strval($oX);
-        
-        //row name, gameID
-        $rowCall = $this->DB->prepare('select ? from Games where GameID = ?');
-        $rowCall->execute(array($firstRow, end($arr)));
-        $rowOne = $firstRowCall->fetchAll( PDO:: FETCH_ASSOC )[0];
-        $secondRow = "Row" + strval($mX);
-        $secondRowCall->execute(array($secondRow, end($arr)));
-        $rowTwo = $secondRowCall->fetchAll( PDO:: FETCH_ASSOC )[0];
-        $updatedOne = "";
-        $updatedTwo = "";
-        
-        //row name, string of row, gameID
-        $pushRow = $this->DB->prepare('update Games set ? = ? where GameID = ?');
-        
-        
-        //reconstruct rows with simple move
-        for($i = 0; $i < 8; $i++) {
-            
-            //from row move
-            if ($i == $oY) {
-                $updatedOne = $updatedOne + "0";
+
+        if($username == $arr['activePlayer']){
+            //break game into 2d array
+            $boardState = array();
+            $gameRows = explode(',','row0,row1,row2,row3,row4,row5,row6,row7');
+            for($i = 0; $i < 8;$i++){
+                $boardState[$i] = str_split(end($currGame)[$cols[$i]]);
             }
-            else {
-                $updatedOne = $updatedOne + substr($rowOne, $i, 1);
-            }
-            
-            //to row move
-            if ($i == $mY) {
-                $updatedTwo = $updatedTwo + substr($rowOne, $oY, 1);
-            }
-            else {
-                $updatedTwo = $updatedTwo + substr($rowTwo, $i, 1);
-            }
-        }
-        
-        //jump move
-        if (($oX - $mX == 2 || $oX - $mX == -2) && ($oY - $mY == 2 || $oY - $mY == -2)) {
-            $thirdRow = "Row" + strval(($oX+$mX)/2);
-            $rowCall->execute(array($thirdRow, end($arr)));
-            $rowThree = $rowCall->fetchAll( PDO:: FETCH_ASSOC )[0];
-            $updatedThree = "";
-            
-            //reconstruct middle row with move
-            for ($i = 0; $i < 8; $i++) {
-                if ($i == ($oY+$mY)/2) {
-                    $updatedThree = $updatedThree + "0";
+
+            $oldPosition = $boardState[$oY][$oX];
+            $newPosition = $boardState[$nY][$nX];
+
+            //if there was no piece in the first pos, do nothing
+            if ($oldPosition != 0){
+                //if the position to move to is occupied, do nothing
+                if ($newPosition == 0){
+                    //logic for red side move
+                    if($username == $arr["playerRed"]){
+                        //only 4 possible move locations
+                        //up right
+                        if($nX = $ox + 1 && $nY == $oY + 1){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //up left
+                        else if($nX = $ox - 1 && $nY == $oY + 1){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //up right jump
+                        else if($nX = $ox + 2 && $nY == $oY + 2){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            //remove the jumped piece
+                            $boardState[$oY + 1][$oX + 1] = 0;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //up left jump
+                        else if($nX = $ox - 2 && $nY == $oY + 2){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            //remove the jumped piece
+                            $boardState[$oY - 1][$oX + 1] = 0;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        else{
+                            return "attempt move to invalid location";
+                        }
+                    }
+                    //logic for black side move
+                    else if ($username == $arr["playerBlack"]){
+                        //down right
+                        if($nX = $ox + 1 && $nY == $oY - 1){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //down left
+                        else if($nX = $ox - 1 && $nY == $oY - 1){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //down right jump
+                        else if($nX = $ox + 2 && $nY == $oY - 2){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            //remove the jumped piece
+                            $boardState[$oY + 1][$oX - 1] = 0;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        //down left jump
+                        else if($nX = $ox - 2 && $nY == $oY - 2){
+                            $boardState[$oY][$oX] = 0;
+                            $boardState[$nY][$nX] = 1;
+                            //remove the jumped piece
+                            $boardState[$oY - 1][$oX - 1] = 0;
+                            return pushBoardState($username, getOtherPlayer($username), $boardState);
+                        }
+                        else{return "attempt move to invalid location";}
+                    }
+                    else{return "error: current player not assigned to game";}
                 }
-                else {
-                    $updatedThree = $updatedThree + substr($rowThree, $i, 1);
-                }
-                
+                else{return "cant move to occupied space";}
             }
-            
-            //update middle row
-            $pushRow->execute(array($thirdRow, $updatedThree, end($arr)));
-            
+            else{return "no piece was selected";}
         }
-        
-        //updates rows in db
-        $uOne->execute(array($firstRow, $updatedOne, end($arr)));
-        $uTwo->execute(array($secondRow, $updatedTwo, end($arr)));
-        
-        return $this->displayBoard($username);
+        else{return "not your turn";}
+    }  
+    
+    public function pushBoardState($username, $activePlayer, $boardStateArray){
+        //convert int array into array of row strings
+        $boardStrings = array();
+        for($y = 0; $y < 8; $y++){
+            $rowString = "";
+            for($x = 0; $x < 8; $x++){
+                $rowString = $rowString . $boardStateArray[$y][$x];
+            }   
+            $boardStrings["row".$y] = $rowString;
+        }
+
+        $check = $this->DB->prepare('UPDATE games
+                                    SET activePlayer = ?, 
+                                    row0 = ?,
+                                    row1 = ?, 
+                                    row2 = ?, 
+                                    row3 = ?, 
+                                    row4 = ?, 
+                                    row5 = ?, 
+                                    row6 = ?, 
+                                    row7 = ?,
+                                    WHERE (PlayerRed = ? OR PlayerBlack = ?) AND winner IS NULL');
+        $check->execute(array($activePlayer, $boardStrings["row0"], $boardStrings["row1"], $boardStrings["row2"], $boardStrings["row3"], $boardStrings["row4"], $boardStrings["row5"], $boardStrings["row6"], $boardStrings["row7"]));
+        return "board updated";
     }
-    
-    
+
     //passes username of winner, null if not over
     public function isGameOver($username) {
         $check = $this->DB->prepare("select row0, row1, row2, row3, row4, row5, row6, row7 from Games 

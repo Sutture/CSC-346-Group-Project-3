@@ -37,23 +37,21 @@
     }
 
     .red{
-        background-color:red;
+        background-color:gray;
     }
     .black{
-        background-color:black;
+        background-color:white;
     }
     .redPiece{
-        color : blue;
+        color : red;
         content: ' \25CF';
         font-size: 60px;
     }
     .blackPiece{
-        background-color:red;
-        color : white;
+        color : black;
         font-size: 60px;
     }
     .selectedPiece{
-        background-color:red;
         color : green;
         font-size: 60px;
     }
@@ -91,6 +89,10 @@
 	        	var boardState = JSON.parse(ajax.responseText);
                 //alternating variable to handle switching background color
                 var board = document.getElementById("board");
+                //remove all prior board state
+                while (board.firstChild) {
+                     board.removeChild(board.firstChild);
+                }
                 for (var y = 0; y < 8; y++){
                     let tempRow = board.insertRow(y);
                     for(var x = 0; x < 8; x++){
@@ -113,6 +115,7 @@
                         }
                     }
                 }
+
                 document.getElementById("board").onclick = function(e) {
                     select(e.target);   
                 }
@@ -134,52 +137,24 @@
         
         //if a tile was previously selected
         else{
-            var validated = false;
             var oY = selected.parentNode.rowIndex;
             var oX = selected.cellIndex;
             var nY = selectedTile.parentNode.rowIndex;
             var nX = selectedTile.cellIndex;
             alert('oY : ' + oY + '\n' + 'oX : ' + oX + '\n' + 'nY : ' + nY + '\n' + 'nX : ' + nX + '\n');
-            //all values inside board
-            if (oY >= 0 && oY < 8 && oX >= 0 && oX < 8 && nY >= 0 && nY < 8 && nX >= 0 && nX < 8){
-                //red side move validation
-                if(selected.classList.contains("redPiece")){
-                    if (nY == oY + 1){
-                        if (nX == oX + 1 || nX == oX -1){
-                            validated = true;
-                        }
-                    }
+
+            selectedTile.classList.remove("selectedPiece");
+            selected = null;
+            var ajax = new XMLHttpRequest();
+            ajax.open("POST", "controller.php", true);
+            ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            ajax.send("method=move&oX=" + oX + "&oY=" + oY + "&nX=" + nX + "&nY=" + nY);
+            ajax.onreadystatechange = function() {
+                if (ajax.readyState == 4 && ajax.status == 200) {
+                    alert("called a move operation");
+                    alert(ajax.responseText);
+                    displayBoard();
                 }
-                else if (selected.classList.contains("blackPiece")){
-                    if (nY == oY - 1){
-                        if (nX == oX + 1 || nX == oX -1){
-                            validated = true;
-                        }
-                    }
-                }
-            }
-
-            if(validated){
-                selectedTile.classList.remove("selectedPiece");
-                selected = null;
-                var ajax = new XMLHttpRequest();
-                ajax.open("POST", "controller.php", true);
-                ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                ajax.send("method=move&oX=" + oX + "&oY=" + oY + "&nX=" + nX + "&nY=" + nY);
-                ajax.onreadystatechange = function() {
-                    if (ajax.readyState == 4 && ajax.status == 200) {
-                        
-
-
-
-
-                        displayBoard();
-                    }
-                }
-            }
-            else{
-                selected.classList.remove("selectedTile");
-                selected = null;
             }
         }   
     }
