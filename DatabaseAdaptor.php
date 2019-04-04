@@ -1,20 +1,23 @@
 <?php
 
-class DatabaseAdaptor {
+ini_set('display_errors', 1);
+
+
+class databaseAdaptor {
     private $DB; // The instance variable used in every method
     // Connect to an existing data based named 'first'
     public function __construct() {
-        $dataBase = 'mysql:dbname=Checkers;charset=utf8;host=127.0.0.1';
-        $user = 'root';
-        $password ='';
-        try {
-            $this->DB = new PDO ( $dataBase, $user, $password );
-            $this->DB->setAttribute ( PDO::ATTR_ERRMODE,
-                PDO::ERRMODE_EXCEPTION );
-        } catch ( PDOException $e ) {
-            echo ('Error establishing Connection');
-            exit ();
-        }
+        //////////////////////////////////////////////
+        $dbhost = 'csc346checkers.cf9rn5kk9dft.us-east-1.rds.amazonaws.com';
+        $dbport = '3306';
+        $dbname = 'Checkers';
+        $charset = 'utf8' ;
+        
+        $dsn = "mysql:host={$dbhost};port={$dbport};dbname={$dbname};charset={$charset}";
+        $username = 'csc346';
+        $password = 'Borderlands1';
+        
+        $this->DB = new PDO($dsn, $username, $password);
     }
     
     public function checkForUsername($username){
@@ -38,15 +41,15 @@ class DatabaseAdaptor {
     //
     public function searchGames($username){
         //find a game without a second player
-        $check = $this->DB->prepare("select gameID from Games 
-                                    where PlayerBlack IS NULL");
+        $check = $this->DB->prepare("select gameid from Games 
+                                    where playerblack is NULL");
         $check->execute();
         $arr = $check->fetchAll(PDO:: FETCH_ASSOC);
         //if a game exists with only one player, update it by adding the current player
         if(count($arr) > 0){
-            $stmt = $this->DB->prepare('UPDATE Games 
-                                        SET PlayerBlack = ? 
-                                        WHERE GameID = ?');
+            $stmt = $this->DB->prepare('update Games 
+                                        set playerblack = ? 
+                                        where gameid = ?');
             $stmt->execute(array($username, end($arr)["gameID"]));
         } 
         //if no games exist with only one player, make a new game
@@ -65,7 +68,7 @@ class DatabaseAdaptor {
         $blackLeft = "20202020";
         $blackRight = "02020202";
         
-        $stmt = $this->DB->prepare('insert into games (PlayerRed, activePlayer, Row0, Row1, Row2, Row3, Row4, Row5, Row6, Row7) 
+        $stmt = $this->DB->prepare('insert into Games (playerred, activeplayer, row0, row1, row2, row3, row4, row5, row6, row7) 
                                     values (?,?,?,?,?,?,?,?,?,?)');
         $stmt->execute(array($PlayerRed, $PlayerRed, $redRight, $redLeft, $redRight, $mid, $mid, $blackLeft, $blackRight, $blackLeft));
     }
@@ -75,17 +78,17 @@ class DatabaseAdaptor {
     //echos json encoded nested array of strings that represent board state
     public function displayBoard($username) {
         //finds gameID for unfinished
-        $check = $this->DB->prepare('select GameID from Games 
-                                    where (PlayerRed = ? or PlayerBlack = ?) 
-                                    AND winner IS NULL');
+        $check = $this->DB->prepare('select gameid from Games 
+                                    where (playerred = ? or playerblack = ?) 
+                                    and winner is NULL');
         $check->execute(array( $username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         
         //finds last game if no current
         if (count($arr) == 0) {
-            $check = $this->DB->prepare('select GameID from Games 
-                                        where PlayerRed = ? 
-                                        or PlayerBlack = ?');
+            $check = $this->DB->prepare('select gameid from Games 
+                                        where playerred = ? 
+                                        or playerblack = ?');
             $check->execute(array($username, $username));
             $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         }
@@ -93,8 +96,8 @@ class DatabaseAdaptor {
         $curr = end($arr);
         $echo = array();
         $check = $this->DB->prepare('select row0, row1, row2, row3, row4, row5, row6, row7 from Games 
-                                    where GameID = ?');
-        $check->execute(array(end($curr)));
+                                    where gameid = ?');
+        $check->execute(array($curr));
         $currGame = $check->fetchAll( PDO:: FETCH_ASSOC );
         $cols = explode(',','row0,row1,row2,row3,row4,row5,row6,row7');
         for($i = 0; $i < 8;$i++){
@@ -108,9 +111,9 @@ class DatabaseAdaptor {
     //makes simple move or jump move happen in db, sends new board back when done
     public function move($oX, $oY, $nX, $nY, $username) {
         //get current game
-        $check = $this->DB->prepare('select GameID, PlayerRed, PlayerBlack, activePlayer, row0, row1, row2, row3, row4, row5, row6, row7 from Games 
-                                    where (PlayerRed = ? or PlayerBlack = ?) 
-                                    AND winner IS NULL');
+        $check = $this->DB->prepare('select gameid, playerred, playerblack, activeplayer, row0, row1, row2, row3, row4, row5, row6, row7 from Games 
+                                    where (playerred = ? or playerblack = ?) 
+                                    and winner is NULL');
         $check->execute(array($username, $username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
 
@@ -225,7 +228,7 @@ class DatabaseAdaptor {
 
         echo json_encode($boardStrings);
 
-        $check = $this->DB->prepare('UPDATE games
+        $check = $this->DB->prepare('UPDATE Games
                                     SET activePlayer = ?, 
                                     row0 = ?,
                                     row1 = ?, 
@@ -235,7 +238,7 @@ class DatabaseAdaptor {
                                     row5 = ?, 
                                     row6 = ?, 
                                     row7 = ?
-                                    WHERE GameID = ?');
+                                    WHERE gameid = ?');
             try{$check->execute(array($activePlayer, $boardStrings[0], $boardStrings[1], $boardStrings[2], $boardStrings[3], $boardStrings[4], $boardStrings[5], $boardStrings[6], $boardStrings[7], $gameID));}
                 catch( PDOException $e){
                     echo $e;
@@ -243,18 +246,18 @@ class DatabaseAdaptor {
         
     }
 
-    //passes username of winner, null if not over
+    //passes username of winner, NULL if not over
     public function isGameOver($username) {
         $check = $this->DB->prepare("select row0, row1, row2, row3, row4, row5, row6, row7 from Games 
-                                    WHERE PlayerRed = ? 
-                                    AND winner IS NULL");
+                                    where playerred = ? 
+                                    and winner is NULL");
         $check->execute(array($username));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         $player = "0";
         if (count(arr) == 0) {
             $check2 = $this->DB->prepare("select row0, row1, row2, row3, row4, row5, row6, row7 from Games 
-                                        WHERE PlayerBlack = ? 
-                                        AND winner IS NULL");
+                                        where playerblack = ? 
+                                        and winner is NULL");
             $check2->execute(array($username));
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
             $player = "2";
@@ -265,9 +268,9 @@ class DatabaseAdaptor {
         
         if (count(arr) == 0) {
             $check2 = $this->DB->prepare("select winner from Games
-                                        where (PlayerBlack = ? 
-                                        OR PlayerRed = ?) 
-                                        AND winner IS NOT NULL");
+                                        where (playerblack = ? 
+                                        or playerred = ?) 
+                                        and winner is not NULL");
             $check2->execute(array($username, $username));
             $arr = $check2->fetchAll( PDO:: FETCH_ASSOC );
             echo end($arr);
@@ -291,35 +294,35 @@ class DatabaseAdaptor {
 
         //echo values:
             //Playername of winning player
-            //null if game not over
+            //NULL if game not over
         $guid;
         if ($player == "1") {
-            $up = $this->DB->prepare("select GameID from Games 
-                                    WHERE PlayerRed = ? 
-                                    AND where winner IS NULL");
+            $up = $this->DB->prepare("select gameid from Games 
+                                    where playerred = ? 
+                                    and where winner is NULL");
             $up->execute(array($username));
             $guid = end($up->fetchAll( PDO:: FETCH_ASSOC ));
             
         }
         if ($player == "2") {
-            $up2 = $this->DB->prepare("select GameID from Games 
-                                    WHERE PlayerBlack = ? 
-                                    AND where winner IS NULL");
+            $up2 = $this->DB->prepare("select gameid from Games 
+                                    where playerblack = ? 
+                                    and where winner is NULL");
             $up2->execute(array($username));
             $guid = end($up2->fetchAll( PDO:: FETCH_ASSOC ));
         }
         
-        //if both players still have pieces, echo null
+        //if both players still have pieces, echo NULL
         if ($other != 0 && $player != 0) {
-            echo null;
+            echo NULL;
         }
         
         //assign winner
         else {
             if ($other == 0) {
                 $up = $this->DB->prepare("update Games set winner = ? 
-                                        WHERE GameID = ? 
-                                        AND winner IS NULL");
+                                        where gameid = ? 
+                                        and winner is NULL");
                 $up->execute(array($username, $guid));
                 echo $username;
             }
@@ -327,8 +330,8 @@ class DatabaseAdaptor {
             if ($playerScore == 0) {
                 $otherPlayer = $this->getOtherPlayer($gameID, $username);
                 $up = $this->DB->prepare("update Games set winner = ? 
-                                        WHERE GameID = ? 
-                                        AND winner IS NULL");
+                                        where gameid = ? 
+                                        and winner is NULL");
                 $up->execute(array($otherPlayer, $guid));
                 echo $otherPlayer;
                 
@@ -342,8 +345,8 @@ class DatabaseAdaptor {
     
     //gets other user for front end
     public function getOtherPlayer($gameID, $currentPlayer) {
-        $check = $this->DB->prepare('select PlayerRed, PlayerBlack from Games 
-                                    where gameID = ?');
+        $check = $this->DB->prepare('select playerred, playerblack from Games 
+                                    where gameid = ?');
         $check->execute(array($gameID));
         $arr = $check->fetchAll( PDO:: FETCH_ASSOC );
         if($currentPlayer == $arr[0]['PlayerRed']){
@@ -364,7 +367,7 @@ class DatabaseAdaptor {
         $winner = $this->getOtherPlayer($gameID, $username);
         $check = $this->DB->prepare("UPDATE Games 
                                     SET winner = ? 
-                                    where (PlayerRed = ? OR PlayerBlack = ?) 
+                                    where (playerred = ? OR playerblack = ?) 
                                     AND winner IS NULL");
         $check->execute(array($winner, $username, $username));
         echo "resigned successfully";
@@ -374,8 +377,8 @@ class DatabaseAdaptor {
     
     //finds current player
     public function isActivePlayer($username) {
-        $check = $this->DB->prepare("SELECT activePlayer from Games 
-                                    where (PlayerRed = ? OR PlayerBlack = ?)
+        $check = $this->DB->prepare("SELECT activeplayer from Games 
+                                    where (playerred = ? OR playerblack = ?)
                                     AND winner IS NULL");
         $check->execute(array($username, $username));
         $game = $check->fetchAll( PDO:: FETCH_ASSOC );

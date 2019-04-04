@@ -1,8 +1,8 @@
 <?php
 
 session_start();
-require_once "DatabaseAdaptor.php";
-$databaseAdaptor = new DatabaseAdaptor();
+require_once "databaseadaptor.php";
+$databaseAdaptor = new databaseAdaptor();
 
 
 if (isset($_POST["method"])){

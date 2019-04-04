@@ -1,0 +1,26 @@
+Create database Checkers;
+use Checkers;
+
+create table userData(
+	userid int(11) NOT NULL AUTO_INCREMENT,
+	username varchar(32) NOT NULL,
+	password varchar(32) NOT NULL,
+	PRIMARY KEY(userID)
+);
+
+create table Games(
+	gameid int(11) NOT NULL AUTO_INCREMENT,
+	playerred varchar(255),
+	playerblack varchar(255),
+	row0 varchar(100),
+	row1 varchar(100),
+	row2 varchar(100),
+	row3 varchar(100),
+	row4 varchar(100),
+	row5 varchar(100),
+	row6 varchar(100),
+	row7 varchar(100),
+	activeplayer varchar(255),
+	winner varchar(255),
+	PRIMARY KEY(GameID)
+);

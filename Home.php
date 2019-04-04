@@ -41,6 +41,7 @@
 	    ajax.send("username=" + username + "&password=" + password + "&method=registration");
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200) {
+				alert(ajax.responseText);
 	        	document.getElementById("messages").innerHTML = ajax.responseText;
 	        }
 	    };
@@ -56,7 +57,7 @@
 	    ajax.onreadystatechange = function() {
 	        if (ajax.readyState == 4 && ajax.status == 200){
 	        	if (ajax.responseText == true){
-					window.location = "gameFinder.php";
+					window.location = "gamefinder.php";
 	        	}
 	        	else{
 	        		document.getElementById("messages").innerHTML = "username and password do not match";

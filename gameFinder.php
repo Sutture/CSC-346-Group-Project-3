@@ -19,7 +19,6 @@
 <script>
 
     function searchGame(){
-		//FOR TESTING PURPOSES ONLY
 		var ajax = new XMLHttpRequest();
 		ajax.open("POST", "controller.php", true);
 	    ajax.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
