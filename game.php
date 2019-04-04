@@ -141,7 +141,7 @@
             var oX = selected.cellIndex;
             var nY = selectedTile.parentNode.rowIndex;
             var nX = selectedTile.cellIndex;
-            alert('oY : ' + oY + '\n' + 'oX : ' + oX + '\n' + 'nY : ' + nY + '\n' + 'nX : ' + nX + '\n');
+            //alert('oY : ' + oY + '\n' + 'oX : ' + oX + '\n' + 'nY : ' + nY + '\n' + 'nX : ' + nX + '\n');
 
             selectedTile.classList.remove("selectedPiece");
             selected = null;
@@ -151,8 +151,7 @@
             ajax.send("method=move&oX=" + oX + "&oY=" + oY + "&nX=" + nX + "&nY=" + nY);
             ajax.onreadystatechange = function() {
                 if (ajax.readyState == 4 && ajax.status == 200) {
-                    alert("called a move operation");
-                    alert(ajax.responseText);
+                    alert(ajax.repsonseText);
                     displayBoard();
                 }
             }
